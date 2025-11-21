@@ -64,7 +64,7 @@ export class BLEDataCollector {
 
     const packetType = dataView.getUint8(0);
     const packetCounter = dataView.getUint16(1, true);
-    const sampleCount = (dataView.byteLength - 3) / 3;
+    const sampleCount = Math.floor((dataView.byteLength - 3) / 3);
 
     if (sampleCount <= 0) return;
 

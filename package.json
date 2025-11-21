@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "react": "^19",
-    "react-dom": "^19"
+    "react-dom": "^19",
+    "recharts": "^3.4.1"
   },
   "devDependencies": {
     "@types/bun": "latest",
