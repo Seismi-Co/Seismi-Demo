@@ -1,6 +1,6 @@
-export const BLE_SERVICE_UUID  = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E".toLowerCase();
-export const BLE_CHAR_RX_UUID = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E".toLowerCase();
-export const BLE_CHAR_TX_UUID = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E".toLowerCase();
+export const BLE_SERVICE_UUID  = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+export const BLE_CHAR_RX_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+export const BLE_CHAR_TX_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 
 export const PACKET_TYPE_ACC = 1;
 export const PACKET_TYPE_PPG = 2;
@@ -123,15 +123,16 @@ export class BLEDataCollector {
 
   downloadCSV() {
     const csv = this.csvRows.map((r) => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
+    console.log(csv);
+    // const blob = new Blob([csv], { type: "text/csv" });
 
-    const filename = `${this.prefix}_${Date.now()}.csv`;
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    link.click();
+    // const filename = `${this.prefix}_${Date.now()}.csv`;
+    // const link = document.createElement("a");
+    // link.href = URL.createObjectURL(blob);
+    // link.download = filename;
+    // link.click();
 
-    console.log(`💾 Saved ${filename}`);
+    // console.log(`💾 Saved ${filename}`);
   }
 }
 

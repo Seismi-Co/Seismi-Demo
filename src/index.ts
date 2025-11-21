@@ -7,13 +7,13 @@ const server = serve({
     "/*": index,
 
     "/api/hello": {
-      async GET(req) {
+      async GET(_req) {
         return Response.json({
           message: "Hello, world!",
           method: "GET",
         });
       },
-      async PUT(req) {
+      async PUT(_req) {
         return Response.json({
           message: "Hello, world!",
           method: "PUT",
@@ -32,7 +32,6 @@ const server = serve({
   development: process.env.NODE_ENV !== "production" && {
     // Enable browser hot reloading in development
     hmr: true,
-
     // Echo console logs from the browser to the server
     console: true,
   },
