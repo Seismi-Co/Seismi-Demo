@@ -33,9 +33,12 @@ To deploy updates:
 
 ```bash
 bun run deploy
+git add docs/
+git commit -m "Deploy: update site"
+git push origin master
 ```
 
-This command builds the app and pushes the built files to GitHub Pages.
+The `bun run deploy` command builds the app to the `docs/` folder. Then commit and push the changes to deploy to GitHub Pages (configured to serve from `/docs` on the master branch).
 
 ### Requirements
 
