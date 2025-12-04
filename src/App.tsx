@@ -73,8 +73,6 @@ export function App() {
       <h1 className="brand-name">Seismi</h1>
 
       <div className="ble-form">
-        <p>Status: <strong>{status}</strong></p>
-
         {error && <p className="error">{error}</p>}
 
         <div className="button-group">
