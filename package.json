@@ -11,6 +11,7 @@
     "deploy": "bun run build"
   },
   "dependencies": {
+    "framer-motion": "^12.23.25",
     "react": "^19",
     "react-dom": "^19",
     "recharts": "^3.4.1"

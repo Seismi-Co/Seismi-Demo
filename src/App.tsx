@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { motion, AnimatePresence } from "framer-motion";
 import "./index.css";
 import { BLEDataCollector, SensorDataPoint } from "./seismi";
 import logoUrl from "../static/logo.png";
@@ -68,11 +69,44 @@ export function App() {
   };
 
   return (
-    <div className="app">
-      <div className={`logo-container ${status === "connected" ? "compact" : ""}`}>
-        <img src={logoUrl} alt="Seismi Logo" className="logo" />
-        <h1 className="brand-name">Seismi</h1>
-      </div>
+    <motion.div
+      className="app"
+      animate={status === "connected" ? "connected" : "disconnected"}
+      variants={{
+        disconnected: { justifyContent: "center" },
+        connected: { justifyContent: "flex-start", paddingTop: "2rem" }
+      }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      <motion.div
+        className="logo-container"
+        layout
+        animate={status === "connected" ? "compact" : "normal"}
+        variants={{
+          normal: {},
+          compact: {
+            marginBottom: "0.5rem"
+          }
+        }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <motion.img
+          src={logoUrl}
+          alt="Seismi Logo"
+          className="logo"
+          layout
+          animate={status === "connected" ? { maxWidth: 60 } : { maxWidth: 200 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        />
+        <motion.h1
+          className="brand-name"
+          layout
+          animate={status === "connected" ? { fontSize: "1.25rem" } : { fontSize: "2.5rem" }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          Seismi
+        </motion.h1>
+      </motion.div>
 
       <div className="ble-form">
         {error && <p className="error">{error}</p>}
@@ -95,43 +129,51 @@ export function App() {
         </div>
       </div>
 
-      {status === "connected" && (
-        <div className="chart-container animate-in">
-          {chartData.length > 0 ? (
-            <>
-              <h2>Sensor Data (last {WINDOW_SECONDS}s - {chartData.length} points)</h2>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="timestamp_ms"
-                    tickFormatter={(val) => `${((val - chartData[0].timestamp_ms) / 1000).toFixed(1)}s`}
-                  />
-                  <YAxis />
-                  <Tooltip
-                    labelFormatter={(val) => `Time: ${((val - chartData[0].timestamp_ms) / 1000).toFixed(2)}s`}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    stroke="#8884d8"
-                    dot={false}
-                    isAnimationActive={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </>
-          ) : (
-            <>
-              <h2>Sensor Data</h2>
-              <div className="chart-placeholder">
-                <p>Waiting for data...</p>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-    </div>
+      <AnimatePresence>
+        {status === "connected" && (
+          <motion.div
+            className="chart-container"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            {chartData.length > 0 ? (
+              <>
+                <h2>Sensor Data (last {WINDOW_SECONDS}s - {chartData.length} points)</h2>
+                <ResponsiveContainer width="100%" height={400}>
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="timestamp_ms"
+                      tickFormatter={(val) => `${((val - chartData[0].timestamp_ms) / 1000).toFixed(1)}s`}
+                    />
+                    <YAxis />
+                    <Tooltip
+                      labelFormatter={(val) => `Time: ${((val - chartData[0].timestamp_ms) / 1000).toFixed(2)}s`}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#8884d8"
+                      dot={false}
+                      isAnimationActive={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </>
+            ) : (
+              <>
+                <h2>Sensor Data</h2>
+                <div className="chart-placeholder">
+                  <p>Waiting for data...</p>
+                </div>
+              </>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 
