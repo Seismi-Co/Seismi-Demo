@@ -70,6 +70,7 @@ export function App() {
   return (
     <div className="app">
       <img src={logoUrl} alt="Seismi Logo" className="logo" />
+      <h1 className="brand-name">Seismi</h1>
 
       <div className="ble-form">
         <p>Status: <strong>{status}</strong></p>
