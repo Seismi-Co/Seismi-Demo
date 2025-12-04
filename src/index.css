@@ -16,6 +16,41 @@ body {
 
 .app {
   text-align: center;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.6s ease-out;
+}
+
+.app:has(.logo-container.compact) {
+  justify-content: flex-start;
+  padding-top: 2rem;
+}
+
+.logo-container {
+  transition: all 0.6s ease-out;
+  margin-bottom: 2rem;
+  flex-shrink: 0;
+}
+
+.logo-container.compact {
+  margin-bottom: 0.5rem;
+  max-height: 20vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-container.compact .logo {
+  max-width: 60px;
+  margin-bottom: 0.25rem;
+}
+
+.logo-container.compact .brand-name {
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem 0;
 }
 
 .logo {
@@ -23,6 +58,7 @@ body {
   width: 100%;
   height: auto;
   margin-bottom: 1rem;
+  transition: all 0.6s ease-out;
 }
 
 .brand-name {
@@ -30,6 +66,7 @@ body {
   font-size: 2.5rem;
   font-weight: 600;
   margin: 0 0 2rem 0;
+  transition: all 0.6s ease-out;
 }
 
 .ble-form {
@@ -68,9 +105,44 @@ button:disabled {
 }
 
 .chart-container {
-  margin-top: 2rem;
+  margin-top: 1rem;
   width: 100%;
   max-width: 800px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.chart-container.animate-in {
+  animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chart-placeholder {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  min-height: 400px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.chart-placeholder p {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.2rem;
 }
 
 .chart-container h2 {
