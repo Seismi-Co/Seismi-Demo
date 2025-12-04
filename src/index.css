@@ -52,3 +52,13 @@ button:disabled {
 .error {
   color: #ff6b6b;
 }
+
+.chart-container {
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 800px;
+}
+
+.chart-container h2 {
+  margin-bottom: 1rem;
+}

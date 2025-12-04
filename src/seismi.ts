@@ -8,6 +8,14 @@ export const PACKET_TYPE_PPG = 2;
 export const ACC_SAMPLE_PERIOD_MS = 16;
 export const PPG_SAMPLE_PERIOD_MS = 2.5;
 
+// Keep 60 seconds of data in buffer (allows for 30s display window + margin)
+const BUFFER_DURATION_MS = 60 * 1000;
+
+export type SensorDataPoint = {
+  timestamp_ms: number;
+  value: number;
+};
+
 export class BLEDataCollector {
   private device: BluetoothDevice | null = null;
   private server: BluetoothRemoteGATTServer | null = null;
@@ -19,11 +27,21 @@ export class BLEDataCollector {
   };
 
   private csvRows: (string | number)[][] = [];
+  private dataPoints: SensorDataPoint[] = [];
   private prefix: string;
   private collectingType: number | null = null;
+  private onDataCallback: ((data: SensorDataPoint[]) => void) | null = null;
 
   constructor(prefix = "adxl355") {
     this.prefix = prefix;
+  }
+
+  onData(callback: (data: SensorDataPoint[]) => void) {
+    this.onDataCallback = callback;
+  }
+
+  getData(): SensorDataPoint[] {
+    return this.dataPoints;
   }
 
   async connect() {
@@ -101,6 +119,7 @@ export class BLEDataCollector {
 
         console.log(`[ACC] ts=${ts}, magnitude_ug=${value}`);
         this.csvRows.push([ts, value]);
+        this.dataPoints.push({ timestamp_ms: ts, value });
       }
 
       if (packetType === PACKET_TYPE_PPG) {
@@ -110,7 +129,29 @@ export class BLEDataCollector {
 
         console.log(`[PPG] ts=${ts}, green=${value}`);
         this.csvRows.push([ts, value]);
+        this.dataPoints.push({ timestamp_ms: ts, value });
       }
+    }
+
+    // Trim old data from buffer
+    this.trimBuffer();
+
+    // Notify listener of new data
+    if (this.onDataCallback) {
+      this.onDataCallback(this.dataPoints);
+    }
+  }
+
+  private trimBuffer() {
+    if (this.dataPoints.length === 0) return;
+
+    const latestTs = this.dataPoints[this.dataPoints.length - 1].timestamp_ms;
+    const cutoffTs = latestTs - BUFFER_DURATION_MS;
+
+    // Find first index that's within the buffer window
+    const firstValidIndex = this.dataPoints.findIndex((d) => d.timestamp_ms >= cutoffTs);
+    if (firstValidIndex > 0) {
+      this.dataPoints = this.dataPoints.slice(firstValidIndex);
     }
   }
 
