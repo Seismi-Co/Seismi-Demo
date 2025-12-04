@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import "./index.css";
 import { BLEDataCollector, SensorDataPoint } from "./seismi";
+import logoUrl from "../static/logo.png";
 
 const WINDOW_SECONDS = 30;
 const CHART_UPDATE_INTERVAL_MS = 1000; // update every second
@@ -68,7 +69,7 @@ export function App() {
 
   return (
     <div className="app">
-      <h1>Seismi</h1>
+      <img src={logoUrl} alt="Seismi Logo" className="logo" />
 
       <div className="ble-form">
         <p>Status: <strong>{status}</strong></p>

@@ -18,6 +18,13 @@ body {
   text-align: center;
 }
 
+.logo {
+  max-width: 300px;
+  width: 100%;
+  height: auto;
+  margin-bottom: 2rem;
+}
+
 .ble-form {
   margin-top: 2rem;
 }
