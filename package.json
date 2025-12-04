@@ -2,11 +2,13 @@
   "name": "bun-react-template",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://seismi-co.github.io/Seismi-Demo",
   "type": "module",
   "scripts": {
     "dev": "bun --hot src/index.ts",
     "build": "bun build ./src/index.html --outdir=dist --sourcemap --target=browser --minify --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
-    "start": "NODE_ENV=production bun src/index.ts"
+    "start": "NODE_ENV=production bun src/index.ts",
+    "deploy": "bun run build && gh-pages -d dist"
   },
   "dependencies": {
     "react": "^19",
@@ -17,6 +19,7 @@
     "@types/bun": "latest",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/web-bluetooth": "^0.0.21"
+    "@types/web-bluetooth": "^0.0.21",
+    "gh-pages": "^6.3.0"
   }
 }
