@@ -14,6 +14,7 @@ const BUFFER_DURATION_MS = 60 * 1000;
 export type SensorDataPoint = {
   timestamp_ms: number;
   value: number;
+  type: number; // PACKET_TYPE_ACC or PACKET_TYPE_PPG
 };
 
 export class BLEDataCollector {
@@ -27,7 +28,8 @@ export class BLEDataCollector {
   };
 
   private csvRows: (string | number)[][] = [];
-  private dataPoints: SensorDataPoint[] = [];
+  private accDataPoints: SensorDataPoint[] = [];
+  private ppgDataPoints: SensorDataPoint[] = [];
   private prefix: string;
   private collectingType: number | null = null;
   private onDataCallback: ((data: SensorDataPoint[]) => void) | null = null;
@@ -40,8 +42,12 @@ export class BLEDataCollector {
     this.onDataCallback = callback;
   }
 
-  getData(): SensorDataPoint[] {
-    return this.dataPoints;
+  getAccData(): SensorDataPoint[] {
+    return this.accDataPoints;
+  }
+
+  getPpgData(): SensorDataPoint[] {
+    return this.ppgDataPoints;
   }
 
   async connect() {
@@ -119,7 +125,7 @@ export class BLEDataCollector {
 
         console.log(`[ACC] ts=${ts}, magnitude_ug=${value}`);
         this.csvRows.push([ts, value]);
-        this.dataPoints.push({ timestamp_ms: ts, value });
+        this.accDataPoints.push({ timestamp_ms: ts, value, type: PACKET_TYPE_ACC });
       }
 
       if (packetType === PACKET_TYPE_PPG) {
@@ -129,29 +135,43 @@ export class BLEDataCollector {
 
         console.log(`[PPG] ts=${ts}, green=${value}`);
         this.csvRows.push([ts, value]);
-        this.dataPoints.push({ timestamp_ms: ts, value });
+        this.ppgDataPoints.push({ timestamp_ms: ts, value, type: PACKET_TYPE_PPG });
       }
     }
 
-    // Trim old data from buffer
-    this.trimBuffer();
+    // Trim old data from buffers
+    this.trimAccBuffer();
+    this.trimPpgBuffer();
 
-    // Notify listener of new data
+    // Notify listener of new data (passing ACC data for backward compatibility)
     if (this.onDataCallback) {
-      this.onDataCallback(this.dataPoints);
+      this.onDataCallback(this.accDataPoints);
     }
   }
 
-  private trimBuffer() {
-    if (this.dataPoints.length === 0) return;
+  private trimAccBuffer() {
+    if (this.accDataPoints.length === 0) return;
 
-    const latestTs = this.dataPoints[this.dataPoints.length - 1].timestamp_ms;
+    const latestTs = this.accDataPoints[this.accDataPoints.length - 1].timestamp_ms;
     const cutoffTs = latestTs - BUFFER_DURATION_MS;
 
     // Find first index that's within the buffer window
-    const firstValidIndex = this.dataPoints.findIndex((d) => d.timestamp_ms >= cutoffTs);
+    const firstValidIndex = this.accDataPoints.findIndex((d) => d.timestamp_ms >= cutoffTs);
     if (firstValidIndex > 0) {
-      this.dataPoints = this.dataPoints.slice(firstValidIndex);
+      this.accDataPoints = this.accDataPoints.slice(firstValidIndex);
+    }
+  }
+
+  private trimPpgBuffer() {
+    if (this.ppgDataPoints.length === 0) return;
+
+    const latestTs = this.ppgDataPoints[this.ppgDataPoints.length - 1].timestamp_ms;
+    const cutoffTs = latestTs - BUFFER_DURATION_MS;
+
+    // Find first index that's within the buffer window
+    const firstValidIndex = this.ppgDataPoints.findIndex((d) => d.timestamp_ms >= cutoffTs);
+    if (firstValidIndex > 0) {
+      this.ppgDataPoints = this.ppgDataPoints.slice(firstValidIndex);
     }
   }
 

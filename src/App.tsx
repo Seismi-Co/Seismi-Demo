@@ -12,7 +12,8 @@ export function App() {
   const [collector, setCollector] = useState<BLEDataCollector | null>(null);
   const [status, setStatus] = useState<"disconnected" | "connecting" | "connected">("disconnected");
   const [error, setError] = useState<string | null>(null);
-  const [chartData, setChartData] = useState<SensorDataPoint[]>([]);
+  const [accChartData, setAccChartData] = useState<SensorDataPoint[]>([]);
+  const [ppgChartData, setPpgChartData] = useState<SensorDataPoint[]>([]);
   const collectorRef = useRef<BLEDataCollector | null>(null);
 
   // Poll the collector for data at a fixed interval
@@ -20,15 +21,23 @@ export function App() {
     if (status !== "connected" || !collectorRef.current) return;
 
     const interval = setInterval(() => {
-      const data = collectorRef.current?.getData() ?? [];
-      if (data.length === 0) return;
+      // Get ACC data
+      const accData = collectorRef.current?.getAccData() ?? [];
+      if (accData.length > 0) {
+        const latestAccTs = accData[accData.length - 1].timestamp_ms;
+        const cutoffAccTs = latestAccTs - WINDOW_SECONDS * 1000;
+        const displayAccData = accData.filter((d) => d.timestamp_ms >= cutoffAccTs);
+        setAccChartData([...displayAccData]);
+      }
 
-      // Get the last 30 seconds of data based on timestamps
-      const latestTs = data[data.length - 1].timestamp_ms;
-      const cutoffTs = latestTs - WINDOW_SECONDS * 1000;
-      const displayData = data.filter((d) => d.timestamp_ms >= cutoffTs);
-
-      setChartData([...displayData]);
+      // Get PPG data
+      const ppgData = collectorRef.current?.getPpgData() ?? [];
+      if (ppgData.length > 0) {
+        const latestPpgTs = ppgData[ppgData.length - 1].timestamp_ms;
+        const cutoffPpgTs = latestPpgTs - WINDOW_SECONDS * 1000;
+        const displayPpgData = ppgData.filter((d) => d.timestamp_ms >= cutoffPpgTs);
+        setPpgChartData([...displayPpgData]);
+      }
     }, CHART_UPDATE_INTERVAL_MS);
 
     return () => clearInterval(interval);
@@ -57,7 +66,8 @@ export function App() {
       collector.stop();
       collectorRef.current = null;
       setCollector(null);
-      setChartData([]);
+      setAccChartData([]);
+      setPpgChartData([]);
       setStatus("disconnected");
     }
   };
@@ -147,38 +157,79 @@ export function App() {
             exit={{ opacity: 0, y: 30 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
-            {chartData.length > 0 ? (
-              <>
-                <h2>Sensor Data (last {WINDOW_SECONDS}s - {chartData.length} points)</h2>
-                <ResponsiveContainer width="100%" height={400}>
-                  <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="timestamp_ms"
-                      tickFormatter={(val) => `${((val - chartData[0].timestamp_ms) / 1000).toFixed(1)}s`}
-                    />
-                    <YAxis />
-                    <Tooltip
-                      labelFormatter={(val) => `Time: ${((val - chartData[0].timestamp_ms) / 1000).toFixed(2)}s`}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="value"
-                      stroke="#8884d8"
-                      dot={false}
-                      isAnimationActive={false}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </>
-            ) : (
-              <>
-                <h2>Sensor Data</h2>
-                <div className="chart-placeholder">
-                  <p>Waiting for data...</p>
-                </div>
-              </>
-            )}
+            <div className="charts-wrapper">
+              {/* ACC Chart */}
+              <div className="chart-item">
+                {accChartData.length > 0 ? (
+                  <>
+                    <h3>ACC Data (last {WINDOW_SECONDS}s - {accChartData.length} points)</h3>
+                    <ResponsiveContainer width="100%" height={400}>
+                      <LineChart data={accChartData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis
+                          dataKey="timestamp_ms"
+                          tickFormatter={(val) => `${((val - accChartData[0].timestamp_ms) / 1000).toFixed(1)}s`}
+                        />
+                        <YAxis label={{ value: 'magnitude_ug', angle: -90, position: 'insideLeft' }} />
+                        <Tooltip
+                          labelFormatter={(val) => `Time: ${((val - accChartData[0].timestamp_ms) / 1000).toFixed(2)}s`}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="value"
+                          stroke="#8884d8"
+                          dot={false}
+                          isAnimationActive={false}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </>
+                ) : (
+                  <>
+                    <h3>ACC Data</h3>
+                    <div className="chart-placeholder">
+                      <p>Waiting for ACC data...</p>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* PPG Chart */}
+              <div className="chart-item">
+                {ppgChartData.length > 0 ? (
+                  <>
+                    <h3>PPG Data (last {WINDOW_SECONDS}s - {ppgChartData.length} points)</h3>
+                    <ResponsiveContainer width="100%" height={400}>
+                      <LineChart data={ppgChartData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis
+                          dataKey="timestamp_ms"
+                          tickFormatter={(val) => `${((val - ppgChartData[0].timestamp_ms) / 1000).toFixed(1)}s`}
+                        />
+                        <YAxis label={{ value: 'green', angle: -90, position: 'insideLeft' }} />
+                        <Tooltip
+                          labelFormatter={(val) => `Time: ${((val - ppgChartData[0].timestamp_ms) / 1000).toFixed(2)}s`}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="value"
+                          stroke="#82ca9d"
+                          dot={false}
+                          isAnimationActive={false}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </>
+                ) : (
+                  <>
+                    <h3>PPG Data</h3>
+                    <div className="chart-placeholder">
+                      <p>Waiting for PPG data...</p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
