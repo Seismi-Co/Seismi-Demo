@@ -179,7 +179,7 @@ export function App() {
                           dataKey="timestamp_ms"
                           tickFormatter={(val) => `${((val - accChartData[0].timestamp_ms) / 1000).toFixed(1)}s`}
                         />
-                        <YAxis label={{ value: 'magnitude_ug', angle: -90, position: 'insideLeft' }} />
+                        <YAxis />
                         <Tooltip
                           labelFormatter={(val) => `Time: ${((val - accChartData[0].timestamp_ms) / 1000).toFixed(2)}s`}
                         />
@@ -218,7 +218,7 @@ export function App() {
                           dataKey="timestamp_ms"
                           tickFormatter={(val) => `${((val - ppgChartData[0].timestamp_ms) / 1000).toFixed(1)}s`}
                         />
-                        <YAxis label={{ value: 'green', angle: -90, position: 'insideLeft' }} />
+                        <YAxis />
                         <Tooltip
                           labelFormatter={(val) => `Time: ${((val - ppgChartData[0].timestamp_ms) / 1000).toFixed(2)}s`}
                         />
