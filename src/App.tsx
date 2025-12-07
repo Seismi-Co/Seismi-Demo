@@ -14,6 +14,8 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [accChartData, setAccChartData] = useState<SensorDataPoint[]>([]);
   const [ppgChartData, setPpgChartData] = useState<SensorDataPoint[]>([]);
+  const [accUpdated, setAccUpdated] = useState(false);
+  const [ppgUpdated, setPpgUpdated] = useState(false);
   const collectorRef = useRef<BLEDataCollector | null>(null);
 
   // Poll the collector for data at a fixed interval
@@ -28,6 +30,8 @@ export function App() {
         const cutoffAccTs = latestAccTs - WINDOW_SECONDS * 1000;
         const displayAccData = accData.filter((d) => d.timestamp_ms >= cutoffAccTs);
         setAccChartData([...displayAccData]);
+        setAccUpdated(true);
+        setTimeout(() => setAccUpdated(false), 200);
       }
 
       // Get PPG data
@@ -37,6 +41,8 @@ export function App() {
         const cutoffPpgTs = latestPpgTs - WINDOW_SECONDS * 1000;
         const displayPpgData = ppgData.filter((d) => d.timestamp_ms >= cutoffPpgTs);
         setPpgChartData([...displayPpgData]);
+        setPpgUpdated(true);
+        setTimeout(() => setPpgUpdated(false), 200);
       }
     }, CHART_UPDATE_INTERVAL_MS);
 
@@ -162,7 +168,10 @@ export function App() {
               <div className="chart-item">
                 {accChartData.length > 0 ? (
                   <>
-                    <h3>ACC Data (last {WINDOW_SECONDS}s - {accChartData.length} points)</h3>
+                    <h3>
+                      ACC Data (last {WINDOW_SECONDS}s - {accChartData.length} points)
+                      <span className={`update-indicator ${accUpdated ? 'active' : ''}`}></span>
+                    </h3>
                     <ResponsiveContainer width="100%" height={400}>
                       <LineChart data={accChartData}>
                         <CartesianGrid strokeDasharray="3 3" />
@@ -198,7 +207,10 @@ export function App() {
               <div className="chart-item">
                 {ppgChartData.length > 0 ? (
                   <>
-                    <h3>PPG Data (last {WINDOW_SECONDS}s - {ppgChartData.length} points)</h3>
+                    <h3>
+                      PPG Data (last {WINDOW_SECONDS}s - {ppgChartData.length} points)
+                      <span className={`update-indicator ${ppgUpdated ? 'active' : ''}`}></span>
+                    </h3>
                     <ResponsiveContainer width="100%" height={400}>
                       <LineChart data={ppgChartData}>
                         <CartesianGrid strokeDasharray="3 3" />

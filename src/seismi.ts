@@ -26,6 +26,10 @@ export class BLEDataCollector {
     [PACKET_TYPE_ACC]: null,
     [PACKET_TYPE_PPG]: null,
   };
+  private genesisPacketCounter: Record<number, number | null> = {
+    [PACKET_TYPE_ACC]: null,
+    [PACKET_TYPE_PPG]: null,
+  };
 
   private csvRows: (string | number)[][] = [];
   private accDataPoints: SensorDataPoint[] = [];
@@ -96,7 +100,8 @@ export class BLEDataCollector {
 
     if (!this.genesisTS[packetType]) {
       this.genesisTS[packetType] = now;
-      console.log(`Genesis for type ${packetType}: ${now}`);
+      this.genesisPacketCounter[packetType] = packetCounter;
+      console.log(`Genesis for type ${packetType}: ts=${now}, counter=${packetCounter}`);
 
       if (packetType === PACKET_TYPE_ACC) {
         this.csvRows.push(["timestamp_ms", "magnitude_ug"]);
@@ -119,9 +124,10 @@ export class BLEDataCollector {
       let ts = 0;
 
       if (packetType === PACKET_TYPE_ACC) {
+        const relativePacketCounter = packetCounter - (this.genesisPacketCounter[PACKET_TYPE_ACC] ?? 0);
         ts =
           (this.genesisTS[PACKET_TYPE_ACC] ?? 0) +
-          (packetCounter * 5 + i) * ACC_SAMPLE_PERIOD_MS;
+          (relativePacketCounter * 5 + i) * ACC_SAMPLE_PERIOD_MS;
 
         console.log(`[ACC] ts=${ts}, magnitude_ug=${value}`);
         this.csvRows.push([ts, value]);
@@ -129,9 +135,10 @@ export class BLEDataCollector {
       }
 
       if (packetType === PACKET_TYPE_PPG) {
+        const relativePacketCounter = packetCounter - (this.genesisPacketCounter[PACKET_TYPE_PPG] ?? 0);
         ts =
           (this.genesisTS[PACKET_TYPE_PPG] ?? 0) +
-          (packetCounter * 5 + i) * PPG_SAMPLE_PERIOD_MS;
+          (relativePacketCounter * 5 + i) * PPG_SAMPLE_PERIOD_MS;
 
         console.log(`[PPG] ts=${ts}, green=${value}`);
         this.csvRows.push([ts, value]);
