@@ -71,6 +71,7 @@ export function App() {
   return (
     <motion.div
       className="app"
+      initial="disconnected"
       animate={status === "connected" ? "connected" : "disconnected"}
       variants={{
         disconnected: { justifyContent: "center" },
@@ -81,11 +82,12 @@ export function App() {
       <motion.div
         className="logo-container"
         layout
+        initial="normal"
         animate={status === "connected" ? "compact" : "normal"}
         variants={{
           normal: {},
           compact: {
-            marginBottom: "0.5rem"
+            marginBottom: "0.25rem"
           }
         }}
         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -95,12 +97,14 @@ export function App() {
           alt="Seismi Logo"
           className="logo"
           layout
+          initial={{ maxWidth: 200 }}
           animate={status === "connected" ? { maxWidth: 60 } : { maxWidth: 200 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         />
         <motion.h1
           className="brand-name"
           layout
+          initial={{ fontSize: "2.5rem" }}
           animate={status === "connected" ? { fontSize: "1.25rem" } : { fontSize: "2.5rem" }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
@@ -108,7 +112,12 @@ export function App() {
         </motion.h1>
       </motion.div>
 
-      <div className="ble-form">
+      <motion.div
+        className="ble-form"
+        initial={{ marginTop: "2rem" }}
+        animate={status === "connected" ? { marginTop: "0.5rem" } : { marginTop: "2rem" }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
         {error && <p className="error">{error}</p>}
 
         <div className="button-group">
@@ -127,7 +136,7 @@ export function App() {
             </>
           )}
         </div>
-      </div>
+      </motion.div>
 
       <AnimatePresence>
         {status === "connected" && (
