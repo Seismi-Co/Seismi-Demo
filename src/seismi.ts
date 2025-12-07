@@ -124,7 +124,11 @@ export class BLEDataCollector {
       let ts = 0;
 
       if (packetType === PACKET_TYPE_ACC) {
-        const relativePacketCounter = packetCounter - (this.genesisPacketCounter[PACKET_TYPE_ACC] ?? 0);
+        let relativePacketCounter = packetCounter - (this.genesisPacketCounter[PACKET_TYPE_ACC] ?? 0);
+        // Handle uint16 wraparound (0-65535)
+        if (relativePacketCounter < 0) {
+          relativePacketCounter += 65536;
+        }
         ts =
           (this.genesisTS[PACKET_TYPE_ACC] ?? 0) +
           (relativePacketCounter * 5 + i) * ACC_SAMPLE_PERIOD_MS;
@@ -135,7 +139,11 @@ export class BLEDataCollector {
       }
 
       if (packetType === PACKET_TYPE_PPG) {
-        const relativePacketCounter = packetCounter - (this.genesisPacketCounter[PACKET_TYPE_PPG] ?? 0);
+        let relativePacketCounter = packetCounter - (this.genesisPacketCounter[PACKET_TYPE_PPG] ?? 0);
+        // Handle uint16 wraparound (0-65535)
+        if (relativePacketCounter < 0) {
+          relativePacketCounter += 65536;
+        }
         ts =
           (this.genesisTS[PACKET_TYPE_PPG] ?? 0) +
           (relativePacketCounter * 5 + i) * PPG_SAMPLE_PERIOD_MS;
